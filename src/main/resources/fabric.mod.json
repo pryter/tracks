@@ -1,33 +1,33 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "tracks",
   "version": "${version}",
 
-  "name": "Example Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "Tracks [Fabric]",
+  "description": "Tracks is a music mod that will enhance your minecraft gameplays.",
   "authors": [
-    "Me!"
+    "Pryter"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://github.com/pryter/tracks",
+    "sources": "https://github.com/pryter/tracks"
   },
 
   "license": "CC0-1.0",
-  "icon": "assets/modid/icon.png",
+  "icon": "assets/tracks/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.fabricmc.example.ExampleMod"
+      "me.pryter.tracks.Tracks"
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+    "tracks.mixins.json"
   ],
 
   "depends": {
-    "fabricloader": ">=0.13.3",
+    "fabricloader": ">=0.13.2",
     "fabric": "*",
     "minecraft": "1.18.x",
     "java": ">=17"

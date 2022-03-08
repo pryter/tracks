@@ -1,0 +1,7 @@
+
+{
+    "parent": "minecraft:item/generated",
+    "textures": {
+      "layer0": "tracks:item/disc_tq8zax4i"
+    }
+  } 
