@@ -1,11 +1,13 @@
 package me.pryter.tracks;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,7 +32,6 @@ import net.minecraft.util.Identifier;
 public class Tracks implements ModInitializer {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger("tracks");
-	private final String PATCH_VERSION = "1.0.1";
 
 	public static void downloadFile(URL url, String fileName) throws Exception {
         try (InputStream in = url.openStream()) {
@@ -61,31 +62,53 @@ public class Tracks implements ModInitializer {
 
 		Items.init();
 		Events.init();
-		
+		final Path folderPath = FabricLoader.getInstance().getGameDir();
+		final File patchVersionFile = folderPath.resolve("patch-version.txt").toFile();
+
+		if (!patchVersionFile.exists()) {
+			try {
+				patchVersionFile.createNewFile();
+			} catch (IOException e) {
+				LOGGER.error("Unable to create patch-version file. Skipping auto upgrade.");
+				e.printStackTrace();
+				return;
+			}
+		}
+
+		String currentPatch;
+
+		try {
+			currentPatch = Files.readString(folderPath.resolve("patch-version.txt"), StandardCharsets.US_ASCII);
+		} catch (IOException e1) {
+			LOGGER.error("Unable to read patch-version file. Skipping auto upgrade.");
+			e1.printStackTrace();
+			return;
+		}
+
 		String latestPatch;
 
 		try {
 			latestPatch = URLReader(new URL("https://davikassk.com/patches/current.txt"), Charset.forName("ascii"));
 			LOGGER.info(latestPatch);
 		} catch (MalformedURLException e1) {
-			LOGGER.info("Unable to fetch latest patches details. You are using "+ PATCH_VERSION + " patches.");
+			LOGGER.info("Unable to fetch latest patches details. You are using "+ currentPatch + " patches.");
 			e1.printStackTrace();
 			return;
 		} catch (IOException e1) {
-			LOGGER.info("Unable to fetch latest patches details. You are using "+ PATCH_VERSION + " patches.");
+			LOGGER.info("Unable to fetch latest patches details. You are using "+ currentPatch + " patches.");
 			e1.printStackTrace();
 			return;
 		}
 		
 
-		if (latestPatch.equals(PATCH_VERSION)) {
+		if (latestPatch.equals(currentPatch)) {
 			LOGGER.info("Your already have up-to-date patches! Skipping patches upgrade.");
 			return;
 		} 
 
+
 		final String patchFileName = "patch-"+latestPatch+".zip";
 
-		final Path folderPath = FabricLoader.getInstance().getGameDir();
 		final Path modPatchesPath = folderPath.resolve("mods/"+patchFileName);
 
 		try {
@@ -103,6 +126,10 @@ public class Tracks implements ModInitializer {
 
 				modPatchesPath.toFile().delete();
 				LOGGER.info("Folder cleanup..");
+				FileWriter writer = new FileWriter(patchVersionFile.getAbsolutePath());
+				writer.write(latestPatch);
+				writer.close();
+
 			} catch (IOException e) {
 				LOGGER.error("Unable to extract patches file!");
 			}
